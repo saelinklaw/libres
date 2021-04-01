@@ -1,0 +1,20 @@
+/testing/guestbin/swan-prep
+east #
+ ipsec start
+Redirecting to: [initsystem]
+east #
+ /testing/pluto/bin/wait-until-pluto-started
+east #
+ ipsec auto --add westnet-eastnet-ipv4-psk
+002 "westnet-eastnet-ipv4-psk": added IKEv1 connection
+east #
+ echo "initdone"
+initdone
+east #
+ ipsec whack --shutdown
+east #
+ ../bin/check-for-core.sh
+east #
+ if [ -f /sbin/ausearch ]; then ausearch -r -m avc -ts recent ; fi
+east #
+ 

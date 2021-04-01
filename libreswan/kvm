@@ -1,0 +1,75 @@
+#!/bin/sh
+
+if test $# = 0; then
+    cat <<EOF
+Usage:
+   <operation> <operation> ... <arg> <arg>
+where <operation is>
+  sh <domain>
+  install
+  test [<test> ...]
+  diffs [<test> ...]
+  results [<test> ...]
+  patch [<test> ...]
+  upgrade
+EOF
+    exit 1
+fi
+
+
+ops=""
+
+# first pass
+while test $# -gt 0 ; do
+    case $1 in
+	sh )
+	    shift ; exec make kvmsh-"$*"
+	    ;;
+	test | retest | upgrade | patch | install )
+	    ops="${ops} $1"
+	    ;;
+	diff|diffs )
+	    ops="${ops} diff"
+	    ;;
+	result|results )
+	    ops="${ops} results"
+	    ;;
+	* ) # assume files
+	    break
+	    ;;
+    esac
+    shift
+done
+
+if test $# -eq 0; then
+    set testing/pluto
+fi
+
+# second pass
+status=0
+for op in ${ops} ; do
+    case ${op} in
+	upgrade )
+	    make kvm-upgrade || exit $?
+	    ;;
+	install )
+	    make kvm-install || exit $?
+	    ;;
+	test | retest )
+	    make kvm-${op} KVM_TESTS="$*"
+	    ;;
+	diff )
+	    make kvm-diffs KVM_TESTS="$*"
+	    status=$?
+	    ;;
+	results )
+	    make kvm-results KVM_TESTS="$*"
+	    status=$?
+	    ;;
+	patch )
+	    make kvm-diffs KVM_TESTS="$*" | patch -p1
+	    ;;
+    esac
+done
+
+exit ${status}

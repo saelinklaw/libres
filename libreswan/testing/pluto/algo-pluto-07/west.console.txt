@@ -1,0 +1,21 @@
+/testing/guestbin/swan-prep
+west #
+ ipsec start
+Redirecting to: [initsystem]
+west #
+ /testing/pluto/bin/wait-until-pluto-started
+west #
+ ipsec auto --add westnet-eastnet-aes256
+036 "westnet-eastnet-aes256": failed to add connection: ESP DH algorithm '4096' is not recognized
+west #
+ echo "initdone"
+initdone
+west #
+ echo done
+done
+west #
+ ../bin/check-for-core.sh
+west #
+ if [ -f /sbin/ausearch ]; then ausearch -r -m avc -ts recent ; fi
+west #
+ 
